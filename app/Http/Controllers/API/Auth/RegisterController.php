@@ -98,7 +98,7 @@ class RegisterController extends Controller
                         'is_verified' => $user->is_verified,
                     ]
                 ],
-                message: 'Email verified successfully. Welcome to our platform!',
+                message: 'Login successful. Your account is pending admin verification to access all features.',
                 code: 200
             );
         } catch (Exception $e) {
