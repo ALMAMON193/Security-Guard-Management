@@ -108,14 +108,13 @@ class ViewUser extends ViewRecord
                     if ($this->record->user && method_exists($this->record->user, 'notify')) {
                         $this->record->user->notify(new RejectRegistration($data['rejection_reason']));
                     } else {
-                        // Fallback: Log or notify admin if no user is associated
+
                         Notification::make()
                             ->title('Warning')
                             ->body('No user associated with this record. Rejection recorded, but no email sent.')
                             ->warning()
                             ->send();
                     }
-
                     // Admin notification
                     Notification::make()
                         ->title('User Rejected')
