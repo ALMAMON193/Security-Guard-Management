@@ -44,6 +44,8 @@ class RegisterController extends Controller
                 'otp' => $otp,
                 'otp_expires_at' => $otpExpiresAt,
                 'is_otp_verified' => false,
+                'is_verified' => false,
+                'status' => 'pending',
             ]);
             // Send OTP email
             Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
@@ -96,6 +98,8 @@ class RegisterController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'is_verified' => $user->is_verified,
+                        'role' => $user->role,
+                        'status' => $user->status,
                     ]
                 ],
                 message: 'Login successful. Your account is pending admin verification to access all features.',
