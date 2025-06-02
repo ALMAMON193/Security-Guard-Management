@@ -45,6 +45,7 @@ class UserResource extends Resource
                 TextInput::make('registration_code')
                     ->required()
                     ->maxLength(255),
+
             ]);
     }
 
@@ -91,6 +92,11 @@ class UserResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_verified', true);
     }
 
     public static function getRelations(): array

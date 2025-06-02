@@ -50,6 +50,9 @@ class LoginController extends Controller
                         'name' => $user->name,
                         'email' => $user->email,
                         'is_verified' => $user->is_verified,
+                        'role' => $user->role,
+                        'status' => $user->status,
+
                     ]
                 ],
                 message: 'Login successful. Your account is pending admin verification to access all features.',

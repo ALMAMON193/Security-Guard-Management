@@ -34,8 +34,9 @@ return new class extends Migration
             $table->string('registration_code'); // User's registration code
             $table->boolean('agree_terms')->default(false); // Terms agreement status
             $table->text('rejection_reason')->nullable();
-            $table->rememberToken(); // Token for "remember me" functionality
-            $table->timestamps(); // Timestamps for created_at and updated_at
+
+            $table->rememberToken();
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
