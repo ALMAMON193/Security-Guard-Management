@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('compliances', function (Blueprint $table) {
             $table->id();
-            $table->string('quote_name');
-            $table->string('company_name');
-            $table->text('client_contact');
-            $table->string('client_email');
-            $table->string('area_of_operation');
+            $table->unsignedBigInteger('user_id');
+            $table->text('compony_location')->nullable();
+            $table->enum('psira_certificate', ['yes', 'no']);
+            $table->string('psira_certificate_path')->nullable();
+            $table->boolean('enable_statutory_deductions')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('compliances');
     }
 };

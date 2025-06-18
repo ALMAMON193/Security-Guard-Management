@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('passport_number'); // User's passport number
             $table->string('registration_code'); // User's registration code
             $table->boolean('agree_terms')->default(false); // Terms agreement status
+            $table->boolean('is_compliance')->default(false); // Verification user compliance
             $table->text('rejection_reason')->nullable();
-
             $table->rememberToken();
             $table->timestamps();
         });

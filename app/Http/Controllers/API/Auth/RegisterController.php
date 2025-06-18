@@ -33,18 +33,18 @@ class RegisterController extends Controller
             $otpExpiresAt = Carbon::now()->addMinutes(60);
 
             $user = User::create([
-                'name' => $request->input('name'),
-                'email' => $request->input('email'),
-                'password' => Hash::make($request->input('password')),
-                'role' => $request->input('role'),
-                'phone' => $request->input('phone'),
-                'passport_number' => $request->input('passport_number'),
-                'registration_code' => $request->input('registration_code'),
-                'agree_terms' => $request->input('agree_terms'),
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
                 'otp' => $otp,
                 'otp_expires_at' => $otpExpiresAt,
-                'is_otp_verified' => false,
+                'role' => $request->role,
+                'phone' => $request->phone,
+                'passport_number' => $request->passport_number,
+                'registration_code' => $request->registration_code,
+                'agree_terms' => $request->agree_terms,
                 'is_verified' => false,
+                'is_compliance' => false,
                 'status' => 'pending',
             ]);
             // Send OTP email
@@ -99,6 +99,7 @@ class RegisterController extends Controller
                         'email' => $user->email,
                         'is_verified' => $user->is_verified,
                         'role' => $user->role,
+                        'is_compliance'=> $user->is_compliance,
                         'status' => $user->status,
                     ]
                 ],

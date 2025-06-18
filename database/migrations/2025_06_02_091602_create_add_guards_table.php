@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('add_guards', function (Blueprint $table) {
             $table->id();
-            $table->string('quote_name');
-            $table->string('company_name');
-            $table->text('client_contact');
-            $table->string('client_email');
+            $table->string('full_name');
+            $table->string('psira_number');
+            $table->string('certificate_file');
+            $table->string('wage_rate');
+            $table->enum('rate_type', ['hourly', 'daily', 'monthly','yearly']);
             $table->string('area_of_operation');
+            $table->string('controller_assignment');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('add_guards');
     }
 };

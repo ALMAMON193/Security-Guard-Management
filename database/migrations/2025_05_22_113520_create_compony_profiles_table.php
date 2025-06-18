@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('compony_profiles', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('company_name');
+            $table->string('business_name');
             $table->string('owner_name');
             $table->string('area_of_operation');
             $table->enum('service_offered', ['guarding','armed_respnse','mobile_patrol','event']);
             $table->string('coida_certificate')->nullable();
             $table->string('uif_certificate')->nullable();
             $table->string('psira_certificate')->nullable();
-             $table->enum('enable_statutory_deductions', ['yes', 'no'])->default('no');
+             $table->enum('enable_statutory_deductions', ['yes', 'no']);
             $table->timestamps();
         });
     }
