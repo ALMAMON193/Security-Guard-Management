@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('comoliance_service_offers', function (Blueprint $table) {
             $table->id();
-            $table->string('quote_name');
-            $table->string('company_name');
-            $table->text('client_contact');
-            $table->string('client_email');
-            $table->string('area_of_operation');
+            $table->unsignedBigInteger('compliance_id');
+            $table->enum('security_grade', ['grade_a','grade_b','grade_c']);
+            $table->enum('service_offered', ['guarding','armed_respnse','mobile_patrol','event']);
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('comoliance_service_offers');
     }
 };

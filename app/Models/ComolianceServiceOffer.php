@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Quote extends Model
+class ComolianceServiceOffer extends Model
 {
     protected $guarded = [];
 }
