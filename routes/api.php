@@ -30,9 +30,6 @@ Route::group(['middleware' => 'auth:sanctum'], static function () {
         Route::post('/v1/create-compliance-setup', 'CreateComplianceSetup');
     });
 
-    //setup Componey Profile
-    Route::controller(CompanyProfileController::class)->group(function () {
-        Route::post('/v1/create-compliance-setup', 'CreateComplianceSetup');
-    });
+
 
 });

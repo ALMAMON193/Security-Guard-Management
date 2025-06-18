@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compony_profiles', function (Blueprint $table) {
+        Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('business_name');
-            $table->string('owner_name');
-            $table->string('area_of_operation');
-            $table->enum('service_offered', ['guarding','armed_respnse','mobile_patrol','event']);
+            $table->string('id_copy')->nullable();
             $table->string('coida_certificate')->nullable();
             $table->string('uif_certificate')->nullable();
             $table->string('psira_certificate')->nullable();
-             $table->enum('enable_statutory_deductions', ['yes', 'no']);
+            $table->string('firearm_competency')->nullable();
+            $table->string('statement_of_results')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compony_profiles');
+        Schema::dropIfExists('compliance_psira_certificates');
     }
 };

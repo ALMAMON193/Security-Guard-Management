@@ -49,7 +49,7 @@ class RegisterController extends Controller
             ]);
             // Send OTP email
             Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
-            return $this->sendResponse($user, 'User registered successfully. Please check your email to verify your account.');
+            return $this->sendResponse($user, 'User registered successfully. Please check your email to verify your account. OTP: ' . $otp);
         } catch (Exception $e) {
             Log::error('Register Error', (array)$e->getMessage());
             return $this->sendError('Something went wrong. Please try again later.'.$e->getMessage(), 500); // Ensure 500 is integer

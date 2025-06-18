@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compliance_psira_certificates', function (Blueprint $table) {
+        Schema::create('company_profiles', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('certificate_file');
+            $table->string('business_name');
+            $table->string('owner_name');
+            $table->string('area_of_operation');
+            $table->json('service_offered');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compliance_psira_certificates');
+        Schema::dropIfExists('compony_profiles');
     }
 };
