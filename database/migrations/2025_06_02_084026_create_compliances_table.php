@@ -14,9 +14,7 @@ return new class extends Migration
         Schema::create('compliances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('compony_location')->nullable();
-            $table->enum('psira_certificate', ['yes', 'no']);
-            $table->string('psira_certificate_path')->nullable();
+            $table->text('company_location')->nullable();
             $table->boolean('enable_statutory_deductions')->nullable();
             $table->timestamps();
         });
