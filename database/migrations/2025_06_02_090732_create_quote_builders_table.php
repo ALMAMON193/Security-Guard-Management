@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('quote_id');
             $table->string('service_type');
             $table->string('site_location');
-            $table->enum('guard_grade', ['grade_a','grade_b','grade_c']);
+            $table->string('guard_grade');
             $table->string('cost');
             $table->string('margin')->comment('%');
             $table->string('total_cost');

@@ -2,10 +2,10 @@
 
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\Auth\LoginController;
-use App\Http\Controllers\API\Auth\LogoutController;
 use App\Http\Controllers\API\Auth\AuthApiController;
-use App\Http\Controllers\API\V1\ComplianceSetupController;
+use App\Http\Controllers\API\BusinessOwner\V1\CompanyProfileController;
+use App\Http\Controllers\API\BusinessOwner\V1\ComplianceSetupController;
+
 
 //auth route
 Route::prefix('auth')->group(function () {
@@ -23,7 +23,11 @@ Route::group(['middleware' => 'auth:sanctum'], static function () {
 
     Route::post('/logout', [AuthApiController::class, 'logoutApi']);
     //compliance setup controller
-    Route::controller(ComplianceSetupController::class)->group(function () {
-        Route::post('/v1/create-compliance-setup', 'CreateComplianceSetup');
+    Route::controller(ComplianceSetupController::class)->prefix('business-owner')->group(function () {
+        Route::post('/v1/compliance-setup', 'CreateComplianceSetup');
+    });
+     //Company Profile setup controller
+    Route::controller(CompanyProfileController::class)->prefix('business-owner')->group(function () {
+        Route::post('/v1/company-profile', 'CreateCompanyProfile');
     });
 });

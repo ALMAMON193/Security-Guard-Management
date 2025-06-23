@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('owner_name');
             $table->string('area_of_operation');
             $table->json('service_offered');
+            $table->boolean('enable_statutory_deductions');
             $table->timestamps();
         });
     }
