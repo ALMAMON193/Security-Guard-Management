@@ -46,6 +46,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         // Compliance controller
         Route::controller(ComplianceApiController::class)->group(function () {
             Route::post('compliance-create', 'createCompliance');
+            Route::get('compliance-documents', 'complianceDocuments');
+            Route::post('compliance-document-upload', 'complianceDocumentUpload');
         });
 
         // Shift management controller

@@ -16,10 +16,6 @@ class CompanyProfileController extends Controller
 {
     use ApiResponse;
 
-   public function __construct()
-    {
-        $this->middleware(['auth:sanctum', 'business_owner']);
-    }
 
     public function createCompanyProfile(Request $request)
     {

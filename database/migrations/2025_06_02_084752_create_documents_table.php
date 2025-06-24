@@ -20,9 +20,13 @@ return new class extends Migration
             $table->string('psira_certificate')->nullable();
             $table->string('firearm_competency')->nullable();
             $table->string('statement_of_results')->nullable();
-            $table->enum('status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('id_status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('coida_status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('uif_status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('psira_status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('firearm_status', ['pending', 'verified', 'declined'])->default('pending');
+            $table->enum('statement_status', ['pending', 'verified', 'declined'])->default('pending');
             $table->timestamps();
-
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }

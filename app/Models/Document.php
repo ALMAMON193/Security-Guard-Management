@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\User;
+use App\Models\DocumentStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
@@ -22,7 +24,14 @@ class Document extends Model
         'psira_certificate',
         'firearm_competency',
         'statement_of_results',
-        'status',
+        'id_status',
+        'coida_status',
+        'uif_status',
+        'psira_status',
+        'firearm_status',
+        'statement_status',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -32,4 +41,5 @@ class Document extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 }

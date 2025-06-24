@@ -14,7 +14,9 @@ use App\Http\Controllers\Controller;
 class ComplianceSetupController extends Controller
 {
     use ApiResponse;
-    public function CreateComplianceSetup(Request $request)
+    
+   
+    public function createComplianceSetup(Request $request)
     {
         $validatedData = $request->validate([
             'company_location' => 'nullable|string|max:255',
