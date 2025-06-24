@@ -3,15 +3,22 @@
 namespace App\Models;
 
 
+use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-use HasFactory, Notifiable,HasApiTokens,SoftDeletes;
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role === 'admin';
+    }
 
     protected $guarded = ['id'];
 
@@ -50,4 +57,8 @@ use HasFactory, Notifiable,HasApiTokens,SoftDeletes;
         return $this->belongsTo(User::class);
     }
 
+    public function shifts()
+    {
+        return $this->hasMany(Shift::class);
+    }
 }

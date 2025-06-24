@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('margin')->comment('%');
             $table->string('total_cost');
             $table->string('total_margin')->comment('%');
+              $table->enum('quote_status', ['pending', 'approved', 'rejected', 'accepted', 'declined', 'modified'])->default('pending');
             $table->timestamps();
         });
     }

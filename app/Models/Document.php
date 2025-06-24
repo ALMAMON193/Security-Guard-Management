@@ -22,6 +22,7 @@ class Document extends Model
         'psira_certificate',
         'firearm_competency',
         'statement_of_results',
+        'status',
     ];
 
     /**

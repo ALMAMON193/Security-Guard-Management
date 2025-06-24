@@ -1,13 +1,14 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\AuthApiController;
+use App\Http\Controllers\API\BusinessOwner\V1\GuardApiController;
+use App\Http\Controllers\API\SecurityGuard\V1\ShiftApiController;
+use App\Http\Controllers\API\SecurityGuard\V1\ComplianceApiController;
 use App\Http\Controllers\API\BusinessOwner\V1\CompanyProfileController;
 use App\Http\Controllers\API\BusinessOwner\V1\ComplianceSetupController;
 
-
-//auth route
+// Auth routes (no middleware)
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthApiController::class, 'loginApi']);
     Route::post('register', [AuthApiController::class, 'registerApi']);
@@ -18,16 +19,40 @@ Route::prefix('auth')->group(function () {
     Route::post('verify-otp', [AuthApiController::class, 'verifyOtpApi']);
 });
 
-
-Route::group(['middleware' => 'auth:sanctum'], static function () {
-
+// Authenticated routes
+Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/logout', [AuthApiController::class, 'logoutApi']);
-    //compliance setup controller
-    Route::controller(ComplianceSetupController::class)->prefix('business-owner')->group(function () {
-        Route::post('/v1/compliance-setup', 'CreateComplianceSetup');
+
+    // Business Owner routes
+    Route::group(['middleware' => 'business_owner', 'prefix' => 'business-owner/v1'], function () {
+        // Compliance setup controller
+        Route::controller(ComplianceSetupController::class)->group(function () {
+            Route::post('compliance-setup', 'createComplianceSetup');
+        });
+
+        // Company Profile setup controller
+        Route::controller(CompanyProfileController::class)->group(function () {
+            Route::post('company-profile', 'createCompanyProfile');
+        });
+
+        // Guard management controller
+        Route::controller(GuardApiController::class)->group(function () {
+            Route::post('guard-create', 'createGuard');
+        });
     });
-     //Company Profile setup controller
-    Route::controller(CompanyProfileController::class)->prefix('business-owner')->group(function () {
-        Route::post('/v1/company-profile', 'CreateCompanyProfile');
+
+    // Security Guard routes
+    Route::group([ 'middleware' => 'security_guard', 'prefix' => 'security-guard/v1'], function () {
+        // Compliance controller
+        Route::controller(ComplianceApiController::class)->group(function () {
+            Route::post('compliance-create', 'createCompliance');
+        });
+
+        // Shift management controller
+        Route::controller(ShiftApiController::class)->group(function () {
+            Route::post('shift-create', 'createShift');
+            Route::get('today-shift', 'todayShift');
+            Route::delete('shift-delete/{id}', 'todayShiftDelete');
+        });
     });
 });

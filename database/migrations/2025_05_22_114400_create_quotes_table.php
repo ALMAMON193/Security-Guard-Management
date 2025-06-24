@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('quotes', function (Blueprint $table) {
             $table->id();
-            $table->string('quote_name');
+            $table->string('client_name');
             $table->string('company_name');
             $table->text('client_contact');
             $table->string('client_email');

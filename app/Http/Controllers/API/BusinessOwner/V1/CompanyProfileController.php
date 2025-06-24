@@ -7,7 +7,6 @@ use App\Helpers\Helper;
 use App\Models\Document;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Models\CompanyProfile;
 use App\Models\ComponyProfile;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -17,7 +16,12 @@ class CompanyProfileController extends Controller
 {
     use ApiResponse;
 
-    public function CreateCompanyProfile(Request $request)
+   public function __construct()
+    {
+        $this->middleware(['auth:sanctum', 'business_owner']);
+    }
+
+    public function createCompanyProfile(Request $request)
     {
         // Validate request data
         $validator = Validator::make($request->all(), [

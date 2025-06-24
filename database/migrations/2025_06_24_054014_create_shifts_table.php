@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compliances', function (Blueprint $table) {
+        Schema::create('shifts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('company_location')->nullable();
-            $table->boolean('enable_statutory_deductions')->nullable();
-            $table->json('service_offered')->nullable();
-            $table->string('grade_of_guard')->nullable();
+            $table->string('date');
+            $table->string('start_time');
+            $table->string('end_time');
+            $table->string('shift_schedule');
+            $table->string('status');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compliances');
+        Schema::dropIfExists('shifts');
     }
 };

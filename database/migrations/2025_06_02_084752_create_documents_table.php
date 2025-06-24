@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('psira_certificate')->nullable();
             $table->string('firearm_competency')->nullable();
             $table->string('statement_of_results')->nullable();
+            $table->enum('status', ['pending', 'verified', 'declined'])->default('pending');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
