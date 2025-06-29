@@ -7,18 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 class ComponyProfile extends Model
 {
     protected $table = 'company_profiles';
-   protected $fillable = [
+    protected $fillable = [
         'user_id',
         'business_name',
         'owner_name',
         'area_of_operation',
         'service_offered',
+        'enable_statutory_deductions'
     ];
 
     protected $casts = [
         'service_offered' => 'array',
     ];
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 }
