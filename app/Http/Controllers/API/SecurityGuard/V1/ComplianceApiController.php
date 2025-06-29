@@ -105,7 +105,7 @@ class ComplianceApiController extends Controller
                     }
                     // Store new file and reset status to pending
                     $data[$field] = Helper::fileUpload($request->file($field), 'credentials');
-                    $data[$field . '_status'] = 'pending'; // Reset status when new file is uploaded
+                    $data[$field . '_status'] = 'pending';
                 } else {
                     // Keep existing file if no new upload
                     $data[$field] = $document->$field;

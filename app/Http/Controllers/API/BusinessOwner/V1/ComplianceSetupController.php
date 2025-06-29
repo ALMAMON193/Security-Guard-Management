@@ -14,8 +14,6 @@ use App\Http\Controllers\Controller;
 class ComplianceSetupController extends Controller
 {
     use ApiResponse;
-    
-   
     public function createComplianceSetup(Request $request)
     {
         $validatedData = $request->validate([
@@ -23,13 +21,10 @@ class ComplianceSetupController extends Controller
             'psira_certificate' => 'nullable|mimes:jpeg,png,jpg,pdf|max:200048',
             'enable_statutory_deductions' => 'nullable|boolean',
         ]);
-
         if (!auth()->check()) {
             return $this->sendError('Unauthorized', ['error' => 'First Login'], 401);
         }
-
         $user = auth()->user();
-
         try {
             $compliance = Compliance::where('user_id', $user->id)->first();
             $document = Document::where('user_id', $user->id)->first();

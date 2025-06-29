@@ -26,7 +26,7 @@ class CompanyProfileController extends Controller
             'area_of_operation' => 'required|string|max:255',
             'service_offered' => 'required|array',
             'service_offered.*' => 'required|string|max:255',
-            'enable_statutory_deductions' => 'required|boolean',
+            'enable_statutory_deductions' => 'required',
             'coida_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
             'uif_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
             'psira_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
@@ -38,11 +38,11 @@ class CompanyProfileController extends Controller
         }
 
         // Check if user is authenticated
-        if (!auth()->check()) {
+        if (!auth('api')->check()) {
             return $this->sendError('Unauthorized', ['error' => 'First Login'], 401);
         }
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         $validatedData = $validator->validated();
 
         try {
