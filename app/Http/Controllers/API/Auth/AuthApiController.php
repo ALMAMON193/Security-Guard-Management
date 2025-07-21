@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\Auth;
 
+use App\Models\Document;
 use Exception;
 use Carbon\Carbon;
 use App\Models\User;
@@ -9,20 +10,26 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Models\CompanyProfile;
+use App\Helpers\Helper;
+use App\Models\Compliance;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
+
 class AuthApiController extends Controller
 {
     use ApiResponse;
 
-    //register api
     public function registerApi(Request $request)
     {
-        // Validate the request data
-        $validator = Validator::make($request->all(), [
+        // Log the entire request data for debugging
+        Log::info('RegisterApi: Request Data', $request->all());
+
+        // Define base validation rules for all roles
+        $baseRules = [
             'name' => 'nullable|string|max:100',
             'email' => 'required|string|email|max:150|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -31,10 +38,34 @@ class AuthApiController extends Controller
             'phone' => 'required|string|max:15',
             'passport_number' => 'required|string|max:20',
             'registration_code' => 'required|string|max:20',
-        ]);
+        ];
+
+        // Additional rules for business_owner role
+        $businessOwnerRules = [
+            'business_name' => 'required|string|max:255',
+            'owner_name' => 'required|string|max:255',
+            'area_of_operation' => 'required|string|max:255',
+            'service_offered' => 'nullable|array',
+            'service_offered.*' => 'string|max:255',
+            'enable_statutory_deductions' => 'required|boolean',
+            'company_location' => 'nullable|string|max:255',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'coida_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
+            'uif_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
+            'psira_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
+        ];
+
+        // Apply validation based on role
+        $rules = $request->role === 'security_guard' ? $baseRules : array_merge($baseRules, $businessOwnerRules);
+
+        $validator = Validator::make($request->all(), $rules);
+
         if ($validator->fails()) {
+            Log::error('RegisterApi: Validation Errors', $validator->errors()->toArray());
             return $this->sendError('Validation failed', $validator->errors()->toArray(), 422);
         }
+
         try {
             $otp = random_int(1000, 9999);
             $otpExpiresAt = Carbon::now()->addMinutes(10); // OTP valid for 10 minutes
@@ -56,23 +87,105 @@ class AuthApiController extends Controller
                 'status' => 'pending',
             ]);
 
+            $userId = $user->id;
+
+            // Handle company profile and compliance for business_owner role only
+            if ($request->role === 'business_owner') {
+                // Handle file uploads
+                $files = [
+                    'coida_certificate' => null,
+                    'uif_certificate' => null,
+                    'psira_certificate' => null,
+                ];
+
+                foreach (['coida_certificate', 'uif_certificate', 'psira_certificate'] as $certificate) {
+                    if ($request->hasFile($certificate)) {
+                        $files[$certificate] = Helper::fileUpload($request->file($certificate), 'documents');
+                    }
+                }
+
+                // Ensure service_offered is properly handled
+                $serviceOffered = $request->input('service_offered', []);
+                if (!empty($serviceOffered) && is_array($serviceOffered)) {
+                    $serviceOffered = json_encode($serviceOffered);
+                } else {
+                    $serviceOffered = null;
+                }
+
+                // Log the processed service_offered
+                Log::info('RegisterApi: processed service_offered', ['service_offered' => $serviceOffered]);
+
+                // Create CompanyProfile
+                $companyProfile = CompanyProfile::create([
+                    'user_id' => $userId,
+                    'business_name' => $request->business_name,
+                    'owner_name' => $request->owner_name,
+                    'area_of_operation' => $request->area_of_operation,
+                    'service_offered' => $serviceOffered,
+                    'enable_statutory_deductions' => $request->enable_statutory_deductions,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                ]);
+
+                // Create Document
+                $document = Document::create([
+                    'user_id' => $userId,
+                    'coida_certificate' => $files['coida_certificate'],
+                    'uif_certificate' => $files['uif_certificate'],
+                    'psira_certificate' => $files['psira_certificate'],
+                ]);
+
+                // Create Compliance
+                $compliance = Compliance::create([
+                    'user_id' => $userId,
+                    'company_location' => $request->company_location,
+                    'enable_statutory_deductions' => $request->enable_statutory_deductions ?? 0,
+                ]);
+
+                // Mark user as compliant if compliance data is provided
+                if ($request->company_location || $files['psira_certificate'] || $request->enable_statutory_deductions) {
+                    $user->is_compliance = true;
+                    $user->save();
+                }
+            }
+
             // Send OTP email
             // Mail::to($user->email)->send(new OtpMail($otp, $user, 'Verify Your Email Address'));
+
+            // Prepare response data
             $success = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'is_verified' => $user->is_verified,
                 'is_compliance' => $user->is_compliance,
-                'status' => $user->status
+                'status' => $user->status,
             ];
+
+            if ($request->role === 'business_owner') {
+                $success = array_merge($success, [
+                    'business_name' => $companyProfile->business_name,
+                    'owner_name' => $companyProfile->owner_name,
+                    'area_of_operation' => $companyProfile->area_of_operation,
+                    'service_offered' => $companyProfile->service_offered ? json_decode($companyProfile->service_offered, true) : null,
+                    'enable_statutory_deductions' => $companyProfile->enable_statutory_deductions,
+                    'latitude' => $companyProfile->latitude,
+                    'longitude' => $companyProfile->longitude,
+                    'company_location' => $compliance->company_location,
+                    'coida_certificate' => $document->coida_certificate ? asset($document->coida_certificate) : "N/A",
+                    'uif_certificate' => $document->uif_certificate ? asset($document->uif_certificate) : "N/A",
+                    'psira_certificate' => $document->psira_certificate ? asset($document->psira_certificate) : "N/A",
+                ]);
+            }
 
             return $this->sendResponse($success, 'Register Successfully Please Verify Your Email :' . $otp);
         } catch (Exception $e) {
-            Log::error('Register Error', (array)$e->getMessage());
-            return $this->sendError($e->getMessage());
+            Log::error('Register Error', ['error' => $e->getMessage()]);
+            return $this->sendError('Error during registration', ['error' => $e->getMessage()], 500);
         }
     }
+
+
     //login api
     public function loginApi(Request $request)
     {
@@ -122,7 +235,7 @@ class AuthApiController extends Controller
             ];
             return $this->sendResponse($success, 'Login successful', $token);
         } catch (Exception $e) {
-            Log::error('Login Error', (array)$e->getMessage());
+            Log::error('Login Error', (array) $e->getMessage());
             return $this->sendError($e->getMessage());
         }
     }
@@ -250,9 +363,9 @@ class AuthApiController extends Controller
                 'email' => $email,
                 'otp_expires_at' => $user->otp_expires_at->format('Y-m-d H:i:s'),
             ];
-            return $this->sendResponse($success, 'OTP sent successfully.:'.$otp);
+            return $this->sendResponse($success, 'OTP sent successfully.:' . $otp);
         } catch (Exception $e) {
-            Log::error('Failed to send OTP:'.$e->getMessage());
+            Log::error('Failed to send OTP:' . $e->getMessage());
             return $this->sendError('Failed to send OTP', ['error' => 'Please try again later'], 500);
         }
     }
@@ -339,7 +452,7 @@ class AuthApiController extends Controller
             // Return a success response
             return $this->sendResponse([], 'Logout successful');
         } catch (Exception $e) {
-            Log::error('Logout Error', (array)$e->getMessage());
+            Log::error('Logout Error', (array) $e->getMessage());
             return $this->sendError('An error occurred during logout', ['error' => 'Please try again later'], 500);
         }
     }

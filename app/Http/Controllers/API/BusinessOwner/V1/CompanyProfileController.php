@@ -7,7 +7,7 @@ use App\Helpers\Helper;
 use App\Models\Document;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
-use App\Models\ComponyProfile;
+use App\Models\CompanyProfile;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +47,7 @@ class CompanyProfileController extends Controller
 
         try {
             // Get existing records
-            $companyProfile = ComponyProfile::where('user_id', $user->id)->first();
+            $companyProfile = CompanyProfile::where('user_id', $user->id)->first();
             $document = Document::where('user_id', $user->id)->first();
 
             // Handle file uploads
@@ -81,7 +81,7 @@ class CompanyProfileController extends Controller
             ];
 
             // Update or create CompanyProfile record
-            $companyProfile = ComponyProfile::updateOrCreate(
+            $companyProfile = CompanyProfile::updateOrCreate(
                 ['user_id' => $user->id],
                 $profileAttributes
             );

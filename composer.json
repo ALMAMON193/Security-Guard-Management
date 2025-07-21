@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "cmsmaxinc/filament-error-pages": "^1.0",
+        "doctrine/dbal": "^4.3",
         "filament/filament": "3.3",
         "filament/notifications": "3.3",
         "joaopaulolndev/filament-pdf-viewer": "^1.0",

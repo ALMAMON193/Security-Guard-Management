@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ComponyProfile extends Model
+class CompanyProfile extends Model
 {
     protected $table = 'company_profiles';
     protected $fillable = [
@@ -13,6 +13,8 @@ class ComponyProfile extends Model
         'owner_name',
         'area_of_operation',
         'service_offered',
+        'latitude',
+        'longitude',
         'enable_statutory_deductions'
     ];
 
