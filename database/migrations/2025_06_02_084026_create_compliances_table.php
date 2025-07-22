@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('compliances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->text('company_location')->nullable();
             $table->boolean('enable_statutory_deductions')->nullable();
             $table->json('service_offered')->nullable();
-            $table->string('grade_of_guard')->nullable();
+            $table->json('grade_of_guard')->nullable();
             $table->timestamps();
         });
     }

@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('company_profiles', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('business_name');
-            $table->string('owner_name');
-            $table->string('area_of_operation');
-            $table->json('service_offered');
-            $table->boolean('enable_statutory_deductions');
+            $table->string('business_name')->nullable();
+            $table->string('owner_name')->nullable();
+            $table->string('area_of_operation')->nullable();
+            $table->text('company_location')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
             $table->timestamps();
         });
     }

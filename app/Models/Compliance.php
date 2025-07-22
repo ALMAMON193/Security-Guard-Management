@@ -8,7 +8,6 @@ class Compliance extends Model
 {
     protected $fillable = [
         'user_id',
-        'company_location',
         'enable_statutory_deductions',
         'service_offered',
         'grade_of_guard',

@@ -12,10 +12,9 @@ class CompanyProfile extends Model
         'business_name',
         'owner_name',
         'area_of_operation',
-        'service_offered',
+        'company_location',
         'latitude',
-        'longitude',
-        'enable_statutory_deductions'
+        'longitude'
     ];
 
     protected $casts = [

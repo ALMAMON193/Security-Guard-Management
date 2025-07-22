@@ -38,6 +38,10 @@ class AuthApiController extends Controller
             'phone' => 'required|string|max:15',
             'passport_number' => 'required|string|max:20',
             'registration_code' => 'required|string|max:20',
+            'service_offered' => 'nullable|array',
+            'service_offered.*' => 'string|max:255',
+            'grade_of_guard' => 'nullable|array',
+            'grade_of_guard.*' => 'string|max:255',
         ];
 
         // Additional rules for business_owner role
@@ -45,12 +49,10 @@ class AuthApiController extends Controller
             'business_name' => 'required|string|max:255',
             'owner_name' => 'required|string|max:255',
             'area_of_operation' => 'required|string|max:255',
-            'service_offered' => 'nullable|array',
-            'service_offered.*' => 'string|max:255',
-            'enable_statutory_deductions' => 'required|boolean',
             'company_location' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
+            'enable_statutory_deductions' => 'required|boolean',
             'coida_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
             'uif_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
             'psira_certificate' => 'nullable|mimes:jpeg,png,jpg,gif,pdf,svg|max:20048',
@@ -89,7 +91,20 @@ class AuthApiController extends Controller
 
             $userId = $user->id;
 
-            // Handle company profile and compliance for business_owner role only
+            // Handle service_offered and grade_of_guard for both roles
+            $serviceOffered = $request->input('service_offered', []);
+            $serviceOffered = (!empty($serviceOffered) && is_array($serviceOffered)) ? json_encode($serviceOffered) : null;
+
+            $gradeOfGuard = $request->input('grade_of_guard', []);
+            $gradeOfGuard = (!empty($gradeOfGuard) && is_array($gradeOfGuard)) ? json_encode($gradeOfGuard) : null;
+
+            // Log the processed service_offered and grade_of_guard
+            Log::info('RegisterApi: processed data', [
+                'service_offered' => $serviceOffered,
+                'grade_of_guard' => $gradeOfGuard,
+            ]);
+
+            // Handle company profile, documents, and compliance for business_owner role
             if ($request->role === 'business_owner') {
                 // Handle file uploads
                 $files = [
@@ -104,25 +119,13 @@ class AuthApiController extends Controller
                     }
                 }
 
-                // Ensure service_offered is properly handled
-                $serviceOffered = $request->input('service_offered', []);
-                if (!empty($serviceOffered) && is_array($serviceOffered)) {
-                    $serviceOffered = json_encode($serviceOffered);
-                } else {
-                    $serviceOffered = null;
-                }
-
-                // Log the processed service_offered
-                Log::info('RegisterApi: processed service_offered', ['service_offered' => $serviceOffered]);
-
                 // Create CompanyProfile
                 $companyProfile = CompanyProfile::create([
                     'user_id' => $userId,
                     'business_name' => $request->business_name,
                     'owner_name' => $request->owner_name,
                     'area_of_operation' => $request->area_of_operation,
-                    'service_offered' => $serviceOffered,
-                    'enable_statutory_deductions' => $request->enable_statutory_deductions,
+                    'company_location' => $request->company_location,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
                 ]);
@@ -138,8 +141,9 @@ class AuthApiController extends Controller
                 // Create Compliance
                 $compliance = Compliance::create([
                     'user_id' => $userId,
-                    'company_location' => $request->company_location,
-                    'enable_statutory_deductions' => $request->enable_statutory_deductions ?? 0,
+                    'enable_statutory_deductions' => $request->enable_statutory_deductions,
+                    'service_offered' => $serviceOffered,
+                    'grade_of_guard' => $gradeOfGuard,
                 ]);
 
                 // Mark user as compliant if compliance data is provided
@@ -147,6 +151,13 @@ class AuthApiController extends Controller
                     $user->is_compliance = true;
                     $user->save();
                 }
+            } else {
+                // For security_guard role, create only Compliance record
+                Compliance::create([
+                    'user_id' => $userId,
+                    'service_offered' => $serviceOffered,
+                    'grade_of_guard' => $gradeOfGuard,
+                ]);
             }
 
             // Send OTP email
@@ -167,14 +178,20 @@ class AuthApiController extends Controller
                     'business_name' => $companyProfile->business_name,
                     'owner_name' => $companyProfile->owner_name,
                     'area_of_operation' => $companyProfile->area_of_operation,
-                    'service_offered' => $companyProfile->service_offered ? json_decode($companyProfile->service_offered, true) : null,
-                    'enable_statutory_deductions' => $companyProfile->enable_statutory_deductions,
+                    'company_location' => $companyProfile->company_location,
                     'latitude' => $companyProfile->latitude,
                     'longitude' => $companyProfile->longitude,
-                    'company_location' => $compliance->company_location,
+                    'service_offered' => $compliance->service_offered ? json_decode($compliance->service_offered, true) : null,
+                    'grade_of_guard' => $compliance->grade_of_guard ? json_decode($compliance->grade_of_guard, true) : null,
+                    'enable_statutory_deductions' => $compliance->enable_statutory_deductions,
                     'coida_certificate' => $document->coida_certificate ? asset($document->coida_certificate) : "N/A",
                     'uif_certificate' => $document->uif_certificate ? asset($document->uif_certificate) : "N/A",
                     'psira_certificate' => $document->psira_certificate ? asset($document->psira_certificate) : "N/A",
+                ]);
+            } else {
+                $success = array_merge($success, [
+                    'service_offered' => $serviceOffered ? json_decode($serviceOffered, true) : null,
+                    'grade_of_guard' => $gradeOfGuard ? json_decode($gradeOfGuard, true) : null,
                 ]);
             }
 
@@ -184,6 +201,8 @@ class AuthApiController extends Controller
             return $this->sendError('Error during registration', ['error' => $e->getMessage()], 500);
         }
     }
+
+
 
 
     //login api
